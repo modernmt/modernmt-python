@@ -56,13 +56,7 @@ class ModernMT(object):
         return translations
 
     def get_context_vector(self, source, targets, text, hints=None, limit=None):
-        multiple_targets = isinstance(targets, list)
-        data = {"source": source, "text": text}
-
-        if multiple_targets:
-            data["targets"] = targets
-        else:
-            data["targets"] = [targets]
+        data = {"source": source, "text": text, "targets": targets}
 
         if hints is not None:
             data["hints"] = hints
@@ -71,7 +65,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/context-vector", data=data)
 
-        if multiple_targets:
+        if isinstance(targets, list):
             return res["vectors"]
         else:
             if targets in res["vectors"]:
@@ -80,16 +74,10 @@ class ModernMT(object):
                 return None
 
     def get_context_vector_from_file(self, source, targets, file, hints=None, limit=None, compression=None):
-        multiple_targets = isinstance(targets, list)
-
         if isinstance(file, str):
             file = open(file, "rb")
 
-        data = {"source": source}
-        if multiple_targets:
-            data["targets"] = targets
-        else:
-            data["targets"] = [targets]
+        data = {"source": source, "targets": targets}
 
         if hints is not None:
             data["hints"] = hints
@@ -100,7 +88,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/context-vector", data=data, files={"content": file})
 
-        if multiple_targets:
+        if isinstance(targets, list):
             return res["vectors"]
         else:
             if targets in res["vectors"]:
