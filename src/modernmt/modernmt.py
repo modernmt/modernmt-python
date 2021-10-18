@@ -32,6 +32,8 @@ class ModernMT(object):
         if context_vector is not None:
             data["context_vector"] = context_vector
         if hints is not None:
+            if isinstance(hints, list):
+                hints = ",".join(map(str, hints))
             data["hints"] = hints
 
         if options is not None:
@@ -59,6 +61,8 @@ class ModernMT(object):
         data = {"source": source, "text": text, "targets": targets}
 
         if hints is not None:
+            if isinstance(hints, list):
+                hints = ",".join(map(str, hints))
             data["hints"] = hints
         if limit is not None:
             data["limit"] = limit
@@ -80,6 +84,8 @@ class ModernMT(object):
         data = {"source": source, "targets": targets}
 
         if hints is not None:
+            if isinstance(hints, list):
+                hints = ",".join(map(str, hints))
             data["hints"] = hints
         if limit is not None:
             data["limit"] = limit
