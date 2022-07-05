@@ -45,6 +45,8 @@ class ModernMT(object):
                 data["multiline"] = options["multiline"]
             if "timeout" in options:
                 data["timeout"] = options["timeout"]
+            if "format" in options:
+                data["format"] = options["format"]
 
         res = self.__send("get", "/translate", data=data)
 
