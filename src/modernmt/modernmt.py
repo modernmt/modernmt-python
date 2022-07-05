@@ -10,7 +10,7 @@ class ModernMTException(Exception):
 
 
 class ModernMT(object):
-    def __init__(self, license_key, platform="modernmt-python", platform_version="1.0.1") -> None:
+    def __init__(self, license_key, platform="modernmt-python", platform_version="1.0.2") -> None:
         self.__base_url = "https://api.modernmt.com"
         self.__headers = {
             "MMT-ApiKey": license_key,
