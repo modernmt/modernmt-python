@@ -24,8 +24,6 @@ class ModernMT(object):
         return self.__send("get", "/translate/languages")
 
     def translate(self, source, target, q, hints=None, context_vector=None, options=None):
-        multiple_targets = isinstance(q, list)
-
         data = {"target": target, "q": q}
         if source is not None:
             data["source"] = source
@@ -50,7 +48,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/translate", data=data)
 
-        if not multiple_targets:
+        if not isinstance(q, list):
             return Translation(res)
 
         translations = []
