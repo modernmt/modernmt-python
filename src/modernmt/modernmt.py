@@ -23,6 +23,22 @@ class ModernMT(object):
     def list_supported_languages(self):
         return self.__send("get", "/translate/languages")
 
+    def detect_language(self, q, format=None):
+        data = {"q": q}
+        if format is not None:
+            data["format"] = format
+
+        res = self.__send("get", "/translate/detect", data=data)
+
+        if not isinstance(q, list):
+            return DetectedLanguage(res)
+
+        languages = []
+        for el in res:
+            languages.append(DetectedLanguage(el))
+
+        return languages
+
     def translate(self, source, target, q, hints=None, context_vector=None, options=None):
         data = {"target": target, "q": q}
         if source is not None:
@@ -217,3 +233,8 @@ class Memory(_Model):
 class ImportJob(_Model):
     def __init__(self, data) -> None:
         super().__init__(data, ["id", "memory", "size", "progress"])
+
+
+class DetectedLanguage(_Model):
+    def __init__(self, data) -> None:
+        super().__init__(data, ["billedCharacters", "detectedLanguage"])
