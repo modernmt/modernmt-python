@@ -10,13 +10,16 @@ class ModernMTException(Exception):
 
 
 class ModernMT(object):
-    def __init__(self, license_key, platform="modernmt-python", platform_version="1.0.3") -> None:
+    def __init__(self, api_key, platform="modernmt-python", platform_version="1.0.3", api_client=None) -> None:
         self.__base_url = "https://api.modernmt.com"
         self.__headers = {
-            "MMT-ApiKey": license_key,
+            "MMT-ApiKey": api_key,
             "MMT-Platform": platform,
             "MMT-PlatformVersion": platform_version
         }
+
+        if api_client is not None:
+            self.__headers["MMT-ApiClient"] = str(api_client)
 
         self.memories = _MemoryServices(self.__headers, self.__send)
 
