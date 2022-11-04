@@ -64,6 +64,8 @@ class ModernMT(object):
                 data["timeout"] = options["timeout"]
             if "format" in options:
                 data["format"] = options["format"]
+            if "alt_translations" in options:
+                data["alt_translations"] = options["alt_translations"]
 
         res = self.__send("get", "/translate", data=data)
 
@@ -225,7 +227,14 @@ class _Model(object):
 
 class Translation(_Model):
     def __init__(self, data) -> None:
-        super().__init__(data, ["translation", "contextVector", "characters", "billedCharacters", "detectedLanguage"])
+        super().__init__(data, [
+            "translation",
+            "contextVector",
+            "characters",
+            "billedCharacters",
+            "detectedLanguage",
+            "altTranslations"
+        ])
 
 
 class Memory(_Model):
