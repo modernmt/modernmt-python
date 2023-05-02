@@ -134,12 +134,12 @@ class ModernMT(object):
         else:
             r = requests.post(url, headers=headers, data=data, files=files)
 
-        json = r.json()
+        _json = r.json()
         if r.status_code != requests.codes.ok:
             ex_type = "UnknownException"
             ex_msg = r.text
             try:
-                error = json["error"]
+                error = _json["error"]
                 ex_type, ex_msg = error["type"], error["message"]
             except KeyError:
                 pass
@@ -148,7 +148,7 @@ class ModernMT(object):
 
             raise ModernMTException(r.status_code, ex_type, ex_msg)
 
-        return json["data"] if cls is None else cls(json["data"])
+        return _json["data"] if cls is None else cls(_json["data"])
 
 
 class _MemoryServices(object):
