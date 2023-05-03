@@ -1,3 +1,4 @@
 requests==2.28.2
 build==0.10.0
 twine==4.0.2
+pyjwt==2.6.0

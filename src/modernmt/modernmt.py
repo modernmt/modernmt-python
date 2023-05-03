@@ -1,16 +1,28 @@
+import base64
+import json
+import time
+
+import jwt
 import requests
 
 
 class ModernMTException(Exception):
-    def __init__(self, status, type, message) -> None:
+    def __init__(self, status, type, message, metadata=None) -> None:
         super().__init__("(%s) %s" % (type, message))
+
         self.status = status
         self.type = type
         self.message = message
 
+        if metadata is not None:
+            self.metadata = metadata
+
 
 class ModernMT(object):
     def __init__(self, api_key, platform="modernmt-python", platform_version="1.1.0", api_client=None) -> None:
+        self.__batch_public_key = None
+        self.__batch_public_key_timestamp = 0
+
         self.__base_url = "https://api.modernmt.com"
         self.__headers = {
             "MMT-ApiKey": api_key,
@@ -78,6 +90,73 @@ class ModernMT(object):
 
         return translations
 
+    def batch_translate(self, webhook, source, target, q, hints=None, context_vector=None, options=None):
+        data = {
+            "webhook": webhook,
+            "target": target,
+            "q": q
+        }
+
+        if context_vector is not None:
+            data["context_vector"] = context_vector
+        if hints is not None:
+            if isinstance(hints, list):
+                hints = ",".join(map(str, hints))
+            data["hints"] = hints
+
+        if source is not None:
+            data["source"] = source
+
+        if options is not None:
+            if "project_id" in options:
+                data["project_id"] = options["project_id"]
+            if "multiline" in options:
+                data["multiline"] = options["multiline"]
+            if "format" in options:
+                data["format"] = options["format"]
+            if "alt_translations" in options:
+                data["alt_translations"] = options["alt_translations"]
+            if "metadata" in options:
+                data["metadata"] = options["metadata"]
+
+        headers = None
+        if options is not None and "idempotency_key" in options:
+            headers = { "x-idempotency-key": options["idempotency_key"] }
+
+        res = self.__send("post", "/translate/batch", data=data, headers=headers)
+
+        return res["enqueued"]
+
+    def handle_callback(self, data, signature):
+        if self.__batch_public_key is None:
+            self.__refresh_public_key()
+
+        if time.time() - self.__batch_public_key_timestamp > 3600:
+            # noinspection PyBroadException
+            try:
+                self.__refresh_public_key()
+            except:
+                pass
+
+        jwt.decode(signature, self.__batch_public_key, algorithms=["RS256"])
+
+        if isinstance(data, str):
+            data = json.loads(data)
+
+        result = data["result"]
+        metadata = data.get("metadata", None)
+        error = result.get("error", None)
+
+        if error is not None:
+            raise ModernMTException(result["status"], error["type"], error["message"], metadata)
+
+        return BatchTranslation(data)
+
+    def __refresh_public_key(self):
+        data = self.__send("get", "/translate/batch/key")
+        self.__batch_public_key = base64.b64decode(data["publicKey"])
+        self.__batch_public_key_timestamp = time.time()
+
     def get_context_vector(self, source, targets, text, hints=None, limit=None):
         data = {"source": source, "text": text, "targets": targets}
 
@@ -123,16 +202,19 @@ class ModernMT(object):
             else:
                 return None
 
-    def __send(self, method, endpoint, data=None, files=None, cls=None):
+    def __send(self, method, endpoint, data=None, files=None, cls=None, headers=None):
         url = self.__base_url + endpoint
 
-        headers = self.__headers
-        headers["X-HTTP-Method-Override"] = method
+        _headers = self.__headers
+        _headers["X-HTTP-Method-Override"] = method
+
+        if headers is not None:
+            _headers.update(headers)
 
         if files is None:
-            r = requests.post(url, headers=headers, json=data)
+            r = requests.post(url, headers=_headers, json=data)
         else:
-            r = requests.post(url, headers=headers, data=data, files=files)
+            r = requests.post(url, headers=_headers, data=data, files=files)
 
         _json = r.json()
         if r.status_code != requests.codes.ok:
@@ -235,6 +317,23 @@ class Translation(_Model):
             "detectedLanguage",
             "altTranslations"
         ])
+
+
+class BatchTranslation(_Model):
+    def __init__(self, data) -> None:
+        super().__init__({}, [])
+
+        _data = data["result"]["data"]
+
+        if not isinstance(_data, list):
+            self.__dict__["data"] = Translation(_data)
+        else:
+            self.__dict__["data"] = []
+            for el in _data:
+                self.__dict__["data"].append(Translation(el))
+
+        if "metadata" in data:
+            self.__dict__["metadata"] = data["metadata"]
 
 
 class Memory(_Model):
