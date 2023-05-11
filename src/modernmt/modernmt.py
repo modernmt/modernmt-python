@@ -150,7 +150,15 @@ class ModernMT(object):
         if error is not None:
             raise ModernMTException(result["status"], error["type"], error["message"], metadata)
 
-        return BatchTranslation(body)
+        _data = result["data"]
+        if not isinstance(_data, list):
+            data = Translation(_data)
+        else:
+            data = []
+            for el in _data:
+                data.append(Translation(el))
+
+        return data, metadata
 
     def __refresh_public_key(self):
         data = self.__send("get", "/translate/batch/key")
@@ -317,23 +325,6 @@ class Translation(_Model):
             "detectedLanguage",
             "altTranslations"
         ])
-
-
-class BatchTranslation(_Model):
-    def __init__(self, data) -> None:
-        super().__init__({}, [])
-
-        _data = data["result"]["data"]
-
-        if not isinstance(_data, list):
-            self.__dict__["data"] = Translation(_data)
-        else:
-            self.__dict__["data"] = []
-            for el in _data:
-                self.__dict__["data"].append(Translation(el))
-
-        if "metadata" in data:
-            self.__dict__["metadata"] = data["metadata"]
 
 
 class Memory(_Model):
