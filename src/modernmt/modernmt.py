@@ -21,7 +21,7 @@ class ModernMTException(Exception):
 class ModernMT(object):
     def __init__(self, api_key, platform="modernmt-python", platform_version="1.2.0", api_client=None) -> None:
         self.__batch_public_key = None
-        self.__batch_public_key_timestamp = 0
+        self.__batch_public_key_timestamp_sec = 0
 
         self.__base_url = "https://api.modernmt.com"
         self.__headers = {
@@ -121,17 +121,17 @@ class ModernMT(object):
 
         headers = None
         if options is not None and "idempotency_key" in options:
-            headers = { "x-idempotency-key": options["idempotency_key"] }
+            headers = {"x-idempotency-key": options["idempotency_key"]}
 
         res = self.__send("post", "/translate/batch", data=data, headers=headers)
 
         return res["enqueued"]
 
-    def handle_callback(self, data, signature):
+    def handle_callback(self, body, signature):
         if self.__batch_public_key is None:
             self.__refresh_public_key()
 
-        if time.time() - self.__batch_public_key_timestamp > 3600:
+        if time.time() - self.__batch_public_key_timestamp_sec > 3600:
             # noinspection PyBroadException
             try:
                 self.__refresh_public_key()
@@ -140,22 +140,22 @@ class ModernMT(object):
 
         jwt.decode(signature, self.__batch_public_key, algorithms=["RS256"])
 
-        if isinstance(data, str):
-            data = json.loads(data)
+        if isinstance(body, str):
+            body = json.loads(body)
 
-        result = data["result"]
-        metadata = data.get("metadata", None)
+        result = body["result"]
+        metadata = body.get("metadata", None)
         error = result.get("error", None)
 
         if error is not None:
             raise ModernMTException(result["status"], error["type"], error["message"], metadata)
 
-        return BatchTranslation(data)
+        return BatchTranslation(body)
 
     def __refresh_public_key(self):
         data = self.__send("get", "/translate/batch/key")
         self.__batch_public_key = base64.b64decode(data["publicKey"])
-        self.__batch_public_key_timestamp = time.time()
+        self.__batch_public_key_timestamp_sec = time.time()
 
     def get_context_vector(self, source, targets, text, hints=None, limit=None):
         data = {"source": source, "text": text, "targets": targets}
