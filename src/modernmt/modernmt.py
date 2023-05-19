@@ -45,7 +45,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/translate/detect", data=data)
 
-        if not isinstance(q, list):
+        if not isinstance(res, list):
             return DetectedLanguage(res)
 
         languages = []
@@ -81,7 +81,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/translate", data=data)
 
-        if not isinstance(q, list):
+        if not isinstance(res, list):
             return Translation(res)
 
         translations = []
@@ -177,7 +177,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/context-vector", data=data)
 
-        if isinstance(targets, list):
+        if len(res["vectors"]) > 1:
             return res["vectors"]
         else:
             if targets in res["vectors"]:
@@ -202,7 +202,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/context-vector", data=data, files={"content": file})
 
-        if isinstance(targets, list):
+        if len(res["vectors"]) > 1:
             return res["vectors"]
         else:
             if targets in res["vectors"]:
