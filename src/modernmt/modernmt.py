@@ -210,6 +210,9 @@ class ModernMT(object):
             else:
                 return None
 
+    def me(self):
+        return self.__send("get", "/users/me", cls=User)
+
     def __send(self, method, endpoint, data=None, files=None, cls=None, headers=None):
         url = self.__base_url + endpoint
 
@@ -340,3 +343,32 @@ class ImportJob(_Model):
 class DetectedLanguage(_Model):
     def __init__(self, data) -> None:
         super().__init__(data, ["billedCharacters", "detectedLanguage"])
+
+
+class User(_Model):
+    def __init__(self, data) -> None:
+        super().__init__(data, [
+            "id",
+            "name",
+            "email",
+            "registrationDate",
+            "country",
+            "isBusiness",
+            "status"
+        ])
+        self.billingPeriod = BillingPeriod(data["billingPeriod"])
+
+
+class BillingPeriod(_Model):
+    def __init__(self, data) -> None:
+        super().__init__(data, [
+            "begin",
+            "end",
+            "chars",
+            "plan",
+            "planDescription",
+            "planForCatTool",
+            "amount",
+            "currency",
+            "currencySymbol"
+        ])
