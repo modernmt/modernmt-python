@@ -177,7 +177,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/context-vector", data=data)
 
-        if len(res["vectors"]) > 1:
+        if isinstance(targets, list):
             return res["vectors"]
         else:
             if targets in res["vectors"]:
@@ -202,7 +202,7 @@ class ModernMT(object):
 
         res = self.__send("get", "/context-vector", data=data, files={"content": file})
 
-        if len(res["vectors"]) > 1:
+        if isinstance(targets, list):
             return res["vectors"]
         else:
             if targets in res["vectors"]:
