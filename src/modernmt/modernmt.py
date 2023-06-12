@@ -213,19 +213,6 @@ class ModernMT(object):
     def me(self):
         return self.__send("get", "/users/me", cls=User)
 
-    def qe(self, source, target, sentence, translation):
-        data = {"source": source, "target": target, "sentence": sentence, "translation": translation}
-        res = self.__send("get", "/qe", data=data)
-
-        if not isinstance(res, list):
-            return QualityEstimation(res)
-
-        qes = []
-        for el in res:
-            qes.append(QualityEstimation(el))
-
-        return qes
-
     def __send(self, method, endpoint, data=None, files=None, cls=None, headers=None):
         url = self.__base_url + endpoint
 
@@ -384,11 +371,4 @@ class BillingPeriod(_Model):
             "amount",
             "currency",
             "currencySymbol"
-        ])
-
-
-class QualityEstimation(_Model):
-    def __init__(self, data) -> None:
-        super().__init__(data, [
-            "score"
         ])
