@@ -78,6 +78,8 @@ class ModernMT(object):
                 data["format"] = options["format"]
             if "alt_translations" in options:
                 data["alt_translations"] = options["alt_translations"]
+            if "session" in options:
+                data["session"] = options["session"]
 
         res = self.__send("get", "/translate", data=data)
 
@@ -118,6 +120,8 @@ class ModernMT(object):
                 data["alt_translations"] = options["alt_translations"]
             if "metadata" in options:
                 data["metadata"] = options["metadata"]
+            if "session" in options:
+                data["session"] = options["session"]
 
         headers = None
         if options is not None and "idempotency_key" in options:
@@ -282,15 +286,34 @@ class _MemoryServices(object):
     def delete(self, id):
         return self.__send("delete", "/memories/%s" % id, cls=Memory)
 
-    def add(self, id, source, target, sentence, translation, tuid=None):
-        data = {"source": source, "target": target, "sentence": sentence, "translation": translation}
+    def add(self, id, source, target, sentence, translation, tuid=None, session=None):
+        data = {
+            "source": source,
+            "target": target,
+            "sentence": sentence,
+            "translation": translation
+        }
+
         if tuid is not None:
             data["tuid"] = tuid
 
+        if session is not None:
+            data["session"] = session
+
         return self.__send("post", "/memories/%s/content" % id, data=data, cls=ImportJob)
 
-    def replace(self, id, tuid, source, target, sentence, translation):
-        data = {"tuid": tuid, "source": source, "target": target, "sentence": sentence, "translation": translation}
+    def replace(self, id, tuid, source, target, sentence, translation, session=None):
+        data = {
+            "tuid": tuid,
+            "source": source,
+            "target": target,
+            "sentence": sentence,
+            "translation": translation
+        }
+
+        if session is not None:
+            data["session"] = session
+
         return self.__send("put", "/memories/%s/content" % id, data=data, cls=ImportJob)
 
     def import_tmx(self, id, tmx, compression=None):
