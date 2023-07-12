@@ -19,7 +19,7 @@ class ModernMTException(Exception):
 
 
 class ModernMT(object):
-    def __init__(self, api_key, platform="modernmt-python", platform_version="1.3.0", api_client=None) -> None:
+    def __init__(self, api_key, platform="modernmt-python", platform_version="1.4.0", api_client=None) -> None:
         self.__batch_public_key = None
         self.__batch_public_key_timestamp_sec = 0
 
