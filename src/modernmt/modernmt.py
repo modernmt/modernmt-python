@@ -139,7 +139,7 @@ class ModernMT(object):
             # noinspection PyBroadException
             try:
                 self.__refresh_public_key()
-            except:
+            except Exception:
                 pass
 
         jwt.decode(signature, self.__batch_public_key, algorithms=["RS256"])
