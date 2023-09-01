@@ -54,6 +54,7 @@ class ModernMT(object):
 
         return languages
 
+    # noinspection DuplicatedCode
     def translate(self, source, target, q, hints=None, context_vector=None, options=None):
         data = {"target": target, "q": q}
         if source is not None:
@@ -84,6 +85,8 @@ class ModernMT(object):
                 data["ignore_glossary_case"] = options["ignore_glossary_case"]
             if "glossaries" in options:
                 data["glossaries"] = options["glossaries"]
+            if "mask_profanities" in options:
+                data["mask_profanities"] = options["mask_profanities"]
 
         res = self.__send("get", "/translate", data=data)
 
@@ -96,6 +99,7 @@ class ModernMT(object):
 
         return translations
 
+    # noinspection DuplicatedCode
     def batch_translate(self, webhook, source, target, q, hints=None, context_vector=None, options=None):
         data = {
             "webhook": webhook,
@@ -130,6 +134,8 @@ class ModernMT(object):
                 data["ignore_glossary_case"] = options["ignore_glossary_case"]
             if "glossaries" in options:
                 data["glossaries"] = options["glossaries"]
+            if "mask_profanities" in options:
+                data["mask_profanities"] = options["mask_profanities"]
 
         headers = None
         if options is not None and "idempotency_key" in options:
