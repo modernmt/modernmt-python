@@ -80,6 +80,10 @@ class ModernMT(object):
                 data["alt_translations"] = options["alt_translations"]
             if "session" in options:
                 data["session"] = options["session"]
+            if "ignore_glossary_case" in options:
+                data["ignore_glossary_case"] = options["ignore_glossary_case"]
+            if "glossaries" in options:
+                data["glossaries"] = options["glossaries"]
 
         res = self.__send("get", "/translate", data=data)
 
@@ -122,6 +126,10 @@ class ModernMT(object):
                 data["metadata"] = options["metadata"]
             if "session" in options:
                 data["session"] = options["session"]
+            if "ignore_glossary_case" in options:
+                data["ignore_glossary_case"] = options["ignore_glossary_case"]
+            if "glossaries" in options:
+                data["glossaries"] = options["glossaries"]
 
         headers = None
         if options is not None and "idempotency_key" in options:
@@ -338,6 +346,41 @@ class _MemoryServices(object):
             data["compression"] = compression
 
         return self.__send("post", "/memories/%s/content" % id, data=data, files={"tmx": tmx}, cls=ImportJob)
+
+    def add_to_glossary(self, id, terms, type, tuid):
+        data = {
+            "terms": terms,
+            "type": type
+        }
+
+        if tuid is not None:
+            data["tuid"] = tuid
+
+        return self.__send("post", "/memories/%s/glossary" % id, data=data, cls=ImportJob)
+
+    def replace_in_glossary(self, id, terms, type, tuid):
+        data = {
+            "terms": terms,
+            "type": type
+        }
+
+        if tuid is not None:
+            data["tuid"] = tuid
+
+        return self.__send("put", "/memories/%s/glossary" % id, data=data, cls=ImportJob)
+
+    def import_glossary(self, id, csv, type, compression=None):
+        if isinstance(csv, str):
+            csv = open(csv, "rb")
+
+        data = {
+            "type": type
+        }
+
+        if compression is not None:
+            data["compression"] = compression
+
+        return self.__send("post", "/memories/%s/glossary" % id, data=data, files={"csv": csv}, cls=ImportJob)
 
     def get_import_status(self, uuid):
         return self.__send("get", "/import-jobs/%s" % uuid, cls=ImportJob)
