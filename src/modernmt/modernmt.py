@@ -411,7 +411,8 @@ class Translation(_Model):
             "characters",
             "billedCharacters",
             "detectedLanguage",
-            "altTranslations"
+            "altTranslations",
+            "detectedProfanities"
         ])
 
 
