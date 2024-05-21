@@ -1,4 +1,4 @@
-requests==2.31.0
+requests==2.32.0
 build==1.0.3
 twine==4.0.2
 pyjwt==2.8.0
