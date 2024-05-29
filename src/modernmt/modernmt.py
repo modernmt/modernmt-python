@@ -233,7 +233,7 @@ class ModernMT(object):
 
     def qe(self, source, target, sentence, translation):
         data = {"source": source, "target": target, "sentence": sentence, "translation": translation}
-        res = self.__send("get", "/qe", data=data)
+        res = self.__send("get", "/translate/qe", data=data)
 
         if not isinstance(res, list):
             return QualityEstimation(res)
