@@ -1,4 +1,4 @@
-requests==2.31.0
-build==1.0.3
-twine==4.0.2
+requests==2.32.2
+build==1.2.1
+twine==5.1.0
 pyjwt==2.8.0
